@@ -1,6 +1,6 @@
 # vision
 
-Nauka OpenCV i YOLO: kamerka z laptopa wykrywa telefon i twarz na żywo. Cel końcowy: ramka na własnej ręce.
+Nauka OpenCV i YOLO: kamerka z laptopa wykrywa telefon i twarz na żywo.
 
 ## Pliki
 
