@@ -14,18 +14,18 @@ while True:
     t0 = time.perf_counter()
     ok, frame = cap.read()
     t1 = time.perf_counter()
-    fps1 = 1/(t0-t1)
-    cv2.putText(img=frame, org=(10,60), text=f"fps read: {fps1:.2f}", fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,0,0), thickness=2)
+    fps1 = -(t0-t1)*1000
     
     if not ok:
         break
+    cv2.putText(img=frame, org=(10,60), text=f"ms read: {fps1:.2f}", fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,0,0), thickness=2)
     #frame = cv2.flip(frame, 1)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     t0 = time.perf_counter()
     result = model(frame, device=0, verbose=False, classes=[67])
     t1 = time.perf_counter()
-    fps2 = 1/(t0-t1)
-    cv2.putText(img=frame, org=(10,80), text=f"fps model: {fps2:.2f}", fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,0,0), thickness=2)
+    fps2 = -(t0-t1)*1000
+    cv2.putText(img=frame, org=(10,80), text=f"ms model: {fps2:.2f}", fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,0,0), thickness=2)
     
     for box in result[0].boxes:
         xy = box.xyxy[0].cpu().numpy().astype(int)
@@ -34,14 +34,15 @@ while True:
         cv2.putText(img=frame, org=(xy[0], xy[1] - 10), text=f"telefon {con:.2f}", fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,0,0), thickness=2)
 
     t0 = time.perf_counter()
-    faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=7)
+    gray = cv2.resize(gray, None, fx=0.5, fy=0.5)
+    faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=7, minSize=(40,40))
     t1 = time.perf_counter()
-    fps3 = 1/(t0-t1)
-    cv2.putText(img=frame, org=(10,100), text=f"fps faces: {fps3:.2f}", fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,0,0), thickness=2)
+    fps3 = -(t0-t1)*1000
+    cv2.putText(img=frame, org=(10,100), text=f"ms faces: {fps3:.4f}", fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,0,0), thickness=2)
     
     for (x,y,w,h) in faces:
-        cv2.rectangle(frame, (x,y), (x+w, y+h), (0,255,0), 2)
-        cv2.putText(img=frame, org=(x,y-10), text="twarz",fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,0,255), thickness=2)
+        cv2.rectangle(frame, (2*x,2*y), (2*x+2*w, 2*y+2*h), (0,255,0), 2)
+        cv2.putText(img=frame, org=(2*x,2*y-10), text="twarz",fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(0,0,255), thickness=2)
     now = time.perf_counter()
     fps = 1/(now-prev)
     prev = now
